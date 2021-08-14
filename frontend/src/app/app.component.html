@@ -1,0 +1,185 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <a class="navbar-brand" style="color:white;">Student list</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor02"
+    aria-controls="navbarColor02" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarColor02">
+    <ul class="navbar-nav mr-auto">
+      <li *ngIf="loggedIn" class="nav-item active">
+        <a class="nav-link" (click)="onOpenModal(null, 'add')">Dodajte studenta <span
+            class="sr-only">(current)</span></a>
+      </li>
+      <li *ngIf="!loggedIn" class="nav-item active">
+        <a class="nav-link" (click)="onOpenModal(null, 'login')">Prijavi se <span class="sr-only">(current)</span></a>
+      </li>
+      <li *ngIf="loggedIn" class="nav-item active">
+        <a class="nav-link" (click)="loggedIn = false">Odjavi se</a>
+      </li>
+    </ul>
+    <form class="form-inline my-2 my-lg-0">
+      <input type="search" (ngModelChange)="searchStudente(key.value)" #key="ngModel" ngModel name="key" id="searchName"
+        class="form-control mr-sm-2" placeholder="Search students..." required>
+    </form>
+  </div>
+</nav>
+<div class="container" id="main-container">
+  <div class="row">
+    <div *ngFor="let student of studenti" class="col-md-6 col-xl-3">
+      <div class="card m-b-30">
+        <div class="card-body row">
+          <div class="col-6">
+            <a href=""><img src="{{student?.slikaUrl}}" alt="" class="img-fluid rounded-circle w-60"></a>
+          </div>
+          <div class="col-6 card-title align-self-center mb-0">
+            <h5>{{student?.ime}}</h5>
+            <p class="m-0">{{student?.nazivFakulteta}}</p>
+          </div>
+        </div>
+        <div *ngIf="loggedIn" class="card-body">
+          <div class="float-right btn-group btn-group-sm">
+            <a (click)="onOpenModal(student, 'edit')" class="btn btn-primary tooltips" data-placement="top"
+              data-original-title="Edit"><i class="fa fa-pencil"></i> </a>
+            <a (click)="onOpenModal(student, 'delete')" class="btn btn-secondary tooltips" data-placement="top"
+              data-original-title="Delete"><i class="fa fa-times"></i></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Student Modal -->
+  <div class="modal fade" id="addStudentModal" tabindex="-1" role="dialog" aria-labelledby="addStudentModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addStudenteModalLabel">Add Student</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form #addForm="ngForm" (ngSubmit)="onAddStudent(addForm)">
+            <div class="form-group">
+              <label for="ime">Ime</label>
+              <input type="text" ngModel name="ime" class="form-control" id="ime" placeholder="Ime" required>
+            </div>
+            <div class="form-group">
+              <label for="fakultet">Id Fakulteta</label>
+              <input type="number" ngModel name="fakultetId" class="form-control" id="fakultet" placeholder="Fakultet"
+                required>
+            </div>
+            <div class="form-group">
+              <label for="slika">Slika</label>
+              <input type="text" ngModel name="slikaUrl" class="form-control" id="slika" placeholder="Slika" required>
+            </div>
+            <div class="modal-footer">
+              <button type="button" id="add-student-form" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button [disabled]="addForm.invalid" type="submit" class="btn btn-primary">Sacuvaj</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Modal -->
+  <div class="modal fade" id="updateStudentModal" tabindex="-1" role="dialog" aria-labelledby="studentEditModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="updateStudentModalLabel">Edit Student {{editStudent?.ime}}</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form #editForm="ngForm">
+            <div class="form-group">
+              <label for="ime">Ime</label>
+              <input type="text" ngModel="{{editStudent?.ime}}" name="ime" class="form-control" id="ime"
+                aria-describedby="emailHelp" placeholder="Ime">
+            </div>
+            <input type="hidden" ngModel="{{editStudent?.id}}" name="id" class="form-control" id="id"
+              placeholder="Email">
+            <div class="form-group">
+              <label for="slika">Slika</label>
+              <input type="text" ngModel="{{editStudent?.slikaUrl}}" name="slikaUrl" class="form-control" id="slika"
+                placeholder="Slika">
+            </div>
+            <div class="modal-footer">
+              <button type="button" id="" data-dismiss="modal" class="btn btn-secondary">Close</button>
+              <button (click)="onUpdateStudent(editForm)" data-dismiss="modal" class="btn btn-primary">Save
+                changes</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Modal -->
+  <div class="modal fade" id="deleteStudentModal" tabindex="-1" role="dialog" aria-labelledby="deleteModelLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="deleteModelLabel">Delete Student</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>Are you sure you want to delete student {{deleteStudent?.ime}}?</p>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+            <button (click)="onDeleteStudent(deleteStudent?.id)" class="btn btn-danger"
+              data-dismiss="modal">Yes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Login Modal -->
+<div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="loginModalLabel">Login</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form #loginForm="ngForm" (ngSubmit)="onLogin(loginForm)">
+          <div class="form-group">
+            <label for="korisnickoIme">Korisničko ime</label>
+            <input type="text" ngModel name="ime" class="form-control" id="korisnickoIme"
+              placeholder="Korisničko ime" required>
+          </div>
+          <div class="form-group">
+            <label for="sifra">Šifra</label>
+            <input type="password" ngModel name="lozinka" class="form-control" id="sifra" placeholder="Lozinka" required>
+          </div>
+          <div class="modal-footer">
+            <button type="button" id="close-login-form" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button [disabled]="loginForm.invalid" type="submit" class="btn btn-primary">Prijavi se</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Notification for no students -->
+<div *ngIf="studenti?.length == 0" class="col-lg-12 col-md-12 col-xl-12">
+  <div class="alert alert-info" role="alert">
+    <h4 class="alert-heading">NO students!</h4>
+    <p>No students were found.</p>
+  </div>
+</div>
