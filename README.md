@@ -1,2 +1,2 @@
-# IT355-PZ-MarioFerketic3599
+# Spring Back - Angular Front
  SpringBackend-AngularFrontend
